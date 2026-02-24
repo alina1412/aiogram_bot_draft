@@ -1,0 +1,17 @@
+app:
+  debug: True
+database:
+  host: localhost # or name of docker-service
+  port: 5432
+  user: postgres
+  password: postgres
+  database: main_db
+  db_driver: postgresql+asyncpg
+bot:
+  token: 1
+  group_id: 1
+rabbitmq:
+  user: user
+  password: 123
+  host: rabbitmq # "rabbitmq" if docker else "127.0.0.1"
+  queue_title: task_queue

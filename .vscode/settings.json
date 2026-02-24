@@ -1,0 +1,13 @@
+{
+    "python.testing.pytestArgs": [
+        "tests", 
+        "-svx",
+        "tests/test_db_accessors.py::test_run_sql",
+        "--color=yes",
+        "--log-level=INFO"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "python.testing.autoTestDiscoverOnSaveEnabled": false,
+    "python-envs.pythonProjects": []
+}
