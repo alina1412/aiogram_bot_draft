@@ -35,6 +35,7 @@ services:
       RABBITMQ_DEFAULT_USER: user
       RABBITMQ_DEFAULT_PASS: 123
       RABBITMQ_NODE_TYPE: rabbitmq
+      QUEUE_NAME: task_queue
     ports:
       - 5672:5672
       - 15672:15672

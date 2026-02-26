@@ -7,13 +7,13 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 
-RUN apt-get install rabbitmq-server -y --fix-missing
+RUN apt-get install rabbitmq-server>=3.8 -y --fix-missing
 
 RUN rabbitmq-plugins enable rabbitmq_management
 
 ENV RABBITMQ_PID_FILE=/var/lib/rabbitmq/mnesia/rabbitmq
 
-COPY init.sh /init.sh
+COPY . .
 RUN chmod +x /init.sh
 EXPOSE 15672
 

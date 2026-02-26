@@ -1,6 +1,7 @@
 import asyncio
 
 from aio.handlers import *
+from aio.manager import MessageManager
 from aio.middlewares import SessionMiddleware
 from aio.settings import bot, dp
 from core.config import config
@@ -9,7 +10,8 @@ from rabbit_service.rabbit import QueueAccessor
 dp.message.middleware(SessionMiddleware())
 
 
-queue = QueueAccessor()
+message_manager = MessageManager()
+queue = QueueAccessor(message_manager)
 
 
 async def bot_start():
