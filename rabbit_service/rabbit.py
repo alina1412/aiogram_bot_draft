@@ -1,7 +1,4 @@
-import asyncio
 import json
-import typing
-from dataclasses import asdict
 
 import aio_pika
 import pamqp
@@ -11,6 +8,7 @@ from aio_pika.abc import (
     AbstractRobustConnection,
 )
 
+from aio.manager import MessageManager
 from core.config import config
 
 
@@ -18,7 +16,7 @@ class QueueAccessor:
     def __init__(self, message_manager):
         self.config = config
         self.logger = config.logger
-        self.message_manager = message_manager
+        self.message_manager: MessageManager = message_manager
         self.username = config.rabbit.user
         self.password = str(config.rabbit.password)
         self.host = config.rabbit.host
@@ -36,6 +34,11 @@ class QueueAccessor:
                 port=self.port,
             )
 
+        if not self.async_channel or self.async_channel.is_closed:
+            self.async_channel = await self.async_connection.channel()
+
+        await self.async_channel.declare_queue(self.queue_title, durable=True)
+
     async def disconnect(self) -> None:
         if self.async_channel:
             await self.async_channel.close()
@@ -43,36 +46,38 @@ class QueueAccessor:
         if self.async_connection:
             await self.async_connection.close()
 
-    async def send_to_queue(self, bunch: list) -> None:
+    async def send_to_queue(self, message: str) -> None:
         await self.connect()
 
-        if not self.async_channel or self.async_channel.is_closed:
-            self.async_channel = await self.async_connection.channel()
-
-        await self.async_channel.declare_queue(self.queue_title, durable=True)
-
-        for item in bunch:
-            message = json.dumps(asdict(item))
-            await self.async_channel.default_exchange.publish(
-                aio_pika.Message(
-                    body=message.encode(),
-                    delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
-                ),
-                routing_key=self.queue_title,
-            )
-            self.logger.info("Sent to queue %s", message)
+        await self.async_channel.default_exchange.publish(
+            aio_pika.Message(
+                body=message.encode(),
+                delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
+                content_type="application/json",
+            ),
+            routing_key=self.queue_title,
+        )
+        self.logger.info("Sent to queue %s", message)
 
     async def process_message(
         self, message: aio_pika.abc.AbstractIncomingMessage
     ) -> None:
-        content_type = message.content_type  # or message.properties.content_type
-        
+        message_dict = {}
+        content_type = (
+            message.headers.get("content_type") or message.content_type
+        )
+
         try:
             async with message.process(ignore_processed=True):
-                try:
-                    message_dict = json.loads(message.body.decode("utf-8"))
-                except json.JSONDecodeError:
-                    self.logger.error(f"Invalid JSON: {message.body}")
+                if content_type == "application/json":
+                    try:
+                        message_dict = json.loads(message.body.decode("utf-8"))
+                    except json.JSONDecodeError:
+                        self.logger.warning(f"Invalid JSON: {message.body}")
+                        await message.nack(requeue=False)
+                        return
+                else:
+                    self.logger.warning(f"Invalid JSON: {message.body}")
                     await message.nack(requeue=False)
                     return
 
@@ -88,9 +93,6 @@ class QueueAccessor:
     async def receive_from_queue(self) -> None:
         await self.connect()
 
-        if not self.async_channel or self.async_channel.is_closed:
-            self.async_channel = await self.async_connection.channel()
-
         await self.async_channel.set_qos(prefetch_count=1)
         queue: AbstractQueue = await self.async_channel.declare_queue(
             self.queue_title, durable=True, auto_delete=False
@@ -100,4 +102,4 @@ class QueueAccessor:
             await queue.consume(callback=self.process_message, no_ack=False)
         except (pamqp.exceptions.AMQPFrameError, KeyboardInterrupt):
             await self.async_connection.close()
-            self.logger.info("QueueAccessor closed async_connection")
+            self.logger.warning("QueueAccessor closed async_connection")
