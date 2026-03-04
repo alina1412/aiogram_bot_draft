@@ -44,7 +44,7 @@ class Config:
     logger: logging.Logger | None = None
 
 
-def get_logger(DEBUG=True):
+def get_logger(DEBUG=True) -> logging.Logger:
     logging.basicConfig(
         filename=("logs.log" if DEBUG else None),
         level=(logging.INFO if DEBUG else logging.WARNING),
@@ -57,7 +57,7 @@ def get_logger(DEBUG=True):
     return logger
 
 
-def setup_config(config_path: str):
+def setup_config(config_path: str) -> Config:
     with open(config_path, "r") as f:
         raw_config = yaml.safe_load(f)
 
@@ -75,7 +75,7 @@ def setup_config(config_path: str):
 
 
 @lru_cache
-def get_config():
+def get_config() -> Config:
     config_path = Path(__file__).parent.parent / "config.yml"
     config = setup_config(config_path)
     return config

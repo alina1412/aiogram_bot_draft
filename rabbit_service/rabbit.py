@@ -13,7 +13,7 @@ from core.config import config
 
 
 class QueueAccessor:
-    def __init__(self, message_manager):
+    def __init__(self, message_manager) -> None:
         self.config = config
         self.logger = config.logger
         self.message_manager: MessageManager = message_manager

@@ -6,11 +6,13 @@ from core.config import config
 
 
 class MessageManager:
+    """Manages sending messages through Telegram bot."""
+
     def __init__(self, bot):
         self.bot = bot
         self.logger = config.logger
 
-    async def handle_updates(self, message_dict):
+    async def handle_updates(self, message_dict: dict) -> None:
         self.logger.info("handle_updates %s", message_dict)
         text = json.dumps(message_dict)
 

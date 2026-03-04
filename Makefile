@@ -1,5 +1,5 @@
 run:
-	poetry run python -m service
+	python -m aio
 
 
 ifdef OS
@@ -21,14 +21,14 @@ down:
 
 test-empty:
 	make renew
-	poetry run pytest -m my --verbosity=2 --showlocals --cov=service --cov-report html
+	pytest -m my --verbosity=2 --showlocals --cov=service --cov-report html
 
 renew:
-	poetry run alembic -c alembic.ini downgrade -1
-	poetry run alembic -c alembic.ini upgrade head
+	alembic -c alembic.ini downgrade -1
+	alembic -c alembic.ini upgrade head
 
 test-all:
-	poetry run pytest -vsx --verbosity=2
+	pytest -vsx --verbosity=2
 
 alembic-gen:
 	alembic revision -m "edit" --head schema@head
@@ -43,17 +43,18 @@ alembic-down:
 	alembic -c alembic.ini downgrade -1
 
 lint:
-	poetry run black service
-	poetry run pylint service
-	poetry run black tests
-	poetry run pylint tests
+	black aio
+	pylint aio
+	black tests
+	pylint tests
 
-isort:
-	poetry run isort service tests
+isort-all:
+	isort aio tests
 
 req:
 	poetry export -f requirements.txt --without-hashes --with dev --output ./service/requirements.txt
 
 format:
+	make isort-all
 	ruff format .
 	ruff check --fix

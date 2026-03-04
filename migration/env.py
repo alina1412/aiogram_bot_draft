@@ -12,23 +12,15 @@ app_config = get_config()
 db_setup_dict = {
         "DB_DRIVER": app_config.database.db_driver,
         "DB_USERNAME":  app_config.database.user,
-         "DB_PASSWORD": app_config.database.password,
+        "DB_PASSWORD": app_config.database.password,
         "DB_HOST": app_config.database.host,
-       "DB_PORT": str(app_config.database.port),
-         "DB_NAME": app_config.database.database
-# from starlette.config import Config
+        "DB_PORT": str(app_config.database.port),
+        "DB_NAME": app_config.database.database
 }
 
 print(db_setup_dict)
-# settingenv = Config(".env")
-# db_setup_from_env = {
-#     "DB_NAME": settingenv("DB_NAME", cast=str),
-#     "DB_HOST": settingenv("DB_HOST", default="localhost", cast=str),
-#     "DB_USERNAME": settingenv("DB_USERNAME", cast=str),
-#     "DB_PORT": settingenv("DB_PORT", cast=str),
-#     "DB_PASSWORD": settingenv("DB_PASSWORD", cast=str),
-#     "DB_DRIVER": settingenv("DB_DRIVER", cast=str),
-# }
+
+
 config = context.config
 section = config.config_ini_section
 

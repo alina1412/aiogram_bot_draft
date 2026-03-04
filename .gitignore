@@ -6,7 +6,9 @@ dist/
 wheels/
 *.egg-info
 
-# Virtual environments
 .venv
 config.yml
-logs.log
+*.log*
+.vscode/
+.env
+postgre_data/

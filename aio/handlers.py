@@ -1,8 +1,6 @@
 from aiogram import types
 from aiogram.filters import Command
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-)
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from aio.manager import MessageManager
 from aio.settings import dp

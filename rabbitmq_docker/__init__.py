@@ -1,1 +1,1 @@
-"""Rabbitmq service"""
+"""RabbitMQ service"""
