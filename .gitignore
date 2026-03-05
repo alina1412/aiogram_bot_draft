@@ -6,9 +6,14 @@ dist/
 wheels/
 *.egg-info
 
+htmlcov/*
+.coverage
+
 .venv
 config.yml
 *.log*
+*.log
+logs.log
 .vscode/
 .env
 postgre_data/
